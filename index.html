@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幸運輪盤大抽獎 - Galaxy 星際版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        @keyframes slow-pan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5), 0 0 0 0 rgba(59, 130, 246, 0.5); }
+            70% { box-shadow: 0 0 16px rgba(59, 130, 246, 0.8), 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5), 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0c1326;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            animation: slow-pan 120s linear infinite alternate;
+            color: #e0e7ff;
+            overflow: hidden;
+        }
+        .main-container {
+            background: rgba(19, 28, 57, 0.7);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        .main-container.official-mode {
+            box-shadow: 0 0 0 3px #2563eb, 0 0 25px 0px rgba(37, 99, 235, 0.6);
+            border-color: #2563eb;
+        }
+        .wheel-container {
+            position: relative;
+            width: 90vw;
+            height: 90vw;
+            max-width: 450px;
+            max-height: 450px;
+            margin: 30px auto;
+            filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3), inset 0 0 25px rgba(0,0,0,0.5);
+            transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .prize {
+            position: absolute; top: 50%; left: 50%; width: 1px; height: 1px; transform-origin: center center;
+        }
+        .prize > span {
+            display: block;
+            transform: translate(-50%, -125px) rotate(-90deg); 
+            color: #ffffff;
+            font-weight: 500;
+            font-size: clamp(14px, 3.5vw, 16px);
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+            white-space: nowrap;
+            text-align: center;
+            width: 160px;
+        }
+        .pointer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            border: 5px solid #fff;
+            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
+        }
+        .pointer::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 36px solid #fff;
+            filter: drop-shadow(0 -5px 5px rgba(255,255,255,0.5));
+        }
+        .spin-button {
+            background: rgba(59, 130, 246, 0.8);
+            border: 1px solid rgba(59, 130, 246, 1);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            transition: all 0.2s ease-in-out;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+            padding: 0.75rem 2.5rem;
+            border-radius: 0.75rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .spin-button:hover:not(:disabled) {
+            background: rgba(96, 165, 250, 0.9);
+            box-shadow: 0 0 25px rgba(96, 165, 250, 0.7);
+            transform: translateY(-2px);
+        }
+        .spin-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #374151;
+            box-shadow: none;
+        }
+        .spin-button:not(:disabled):active {
+            transform: translateY(1px);
+        }
+        .modal-backdrop {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .staff-login-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10001;
+            background-color: #1d4ed8;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulse-glow 2s infinite;
+        }
+        .staff-login-button:hover {
+            transform: scale(1.1);
+            animation-play-state: paused;
+        }
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background-color: #1e293b;
+            padding: 2rem;
+            box-shadow: -10px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10002; /* Higher than staff button */
+            overflow-y: auto;
+        }
+        .settings-panel.open { right: 0; }
+        .settings-toggle-button {
+            position: fixed; top: 20px; right: 20px; z-index: 10003; /* Highest z-index */
+        }
+    </style>
+</head>
+<body>
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <!-- 主抽獎畫面 -->
+        <div id="mainContainer" class="main-container p-6 sm:p-8 rounded-3xl text-center max-w-2xl w-full relative">
+            <div id="officialModeBanner" class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white font-bold px-4 py-1 rounded-full text-sm shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">
+                官方抽獎模式
+            </div>
+            <h1 id="mainTitle" class="text-3xl sm:text-4xl font-bold text-white mb-2" style="text-shadow: 0 0 10px rgba(96, 165, 250, 0.7);">LUCKY WHEEL</h1>
+            <p class="text-slate-300 mb-6">點擊下方按鈕，抽出你的專屬幸運！</p>
+            <div class="wheel-container">
+                <div class="wheel" id="wheel"></div>
+                <div class="pointer"></div>
+            </div>
+            <div class="mt-8">
+                <button id="spinButton" class="spin-button">開始抽獎</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果彈出視窗 -->
+    <div id="resultModal" class="result-modal modal-backdrop fixed inset-0 flex items-center justify-center opacity-0 pointer-events-none transform scale-90 z-[10001]">
+        <div class="modal-content p-8 rounded-2xl w-11/12 max-w-md text-center">
+            <h2 id="resultTitle" class="text-2xl font-bold text-white mb-4"></h2>
+            <p id="resultText" class="text-5xl font-bold text-cyan-400 my-6" style="text-shadow: 0 0 15px rgba(56, 189, 248, 0.7);"></p>
+            <div id="resultInstructions" class="mt-6 text-left text-slate-300 text-base bg-slate-800/50 p-4 rounded-lg"></div>
+            <button id="closeModalButton" class="spin-button mt-6">太棒了！</button>
+        </div>
+    </div>
+    
+    <canvas id="confetti-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-[9999]"></canvas>
+
+    <!-- 後台設定按鈕 (預設隱藏) -->
+    <div id="settings-toggle" class="settings-toggle-button bg-slate-600 text-white rounded-full w-12 h-12 items-center justify-center shadow-lg cursor-pointer" style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+    </div>
+    
+    <!-- 官方模式啟動按鈕 -->
+    <div id="staff-login" class="staff-login-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+    </div>
+
+    <!-- 後台設定面板 -->
+    <div id="settings-panel" class="settings-panel text-white">
+        <h2 class="text-2xl font-bold mb-6">獎項設定</h2>
+        <div class="mb-6">
+            <label for="title-input" class="block mb-2 text-sm font-medium text-gray-300">活動主標題</label>
+            <input type="text" id="title-input" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="輸入活動主標題">
+        </div>
+        <div id="prize-list" class="space-y-4"></div>
+        <button id="add-prize" class="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">新增獎項</button>
+        <button id="save-settings" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded">儲存設定並更新轉盤</button>
+        <p class="text-xs text-gray-400 mt-4">所有設定將會自動儲存在您的瀏覽器中。</p>
+    </div>
+
+    <!-- 店員密碼驗證彈窗 -->
+    <div id="authModal" class="auth-modal modal-backdrop fixed inset-0 flex items-center justify-center z-[10002] opacity-0 pointer-events-none">
+        <div class="modal-content p-8 rounded-2xl w-11/12 max-w-sm text-center">
+            <h2 class="text-2xl font-bold text-white mb-4">店員授權</h2>
+            <p class="text-slate-300 mb-6">請輸入密碼以啟動官方抽獎模式。</p>
+            <input type="password" id="passwordInput" class="w-full p-3 rounded bg-slate-800/50 border border-slate-600 text-white text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••">
+            <p id="passwordError" class="text-red-400 h-6 mt-2 text-sm"></p>
+            <div class="flex gap-4 mt-2">
+                <button id="cancelUnlockButton" class="w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 rounded-lg">取消</button>
+                <button id="unlockButton" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg">登入</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- 0. 活動設定 ---
+        const STAFF_PASSWORD = 'samsung888';
+
+        // --- 1. DOM 元素 & 全域變數 ---
+        const mainContainer = document.getElementById('mainContainer');
+        const mainTitle = document.getElementById('mainTitle');
+        const wheel = document.getElementById('wheel');
+        const spinButton = document.getElementById('spinButton');
+        const resultModal = document.getElementById('resultModal');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultText = document.getElementById('resultText');
+        const resultInstructions = document.getElementById('resultInstructions');
+        const closeModalButton = document.getElementById('closeModalButton');
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const ctx = confettiCanvas.getContext('2d');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsToggle = document.getElementById('settings-toggle');
+        const prizeListContainer = document.getElementById('prize-list');
+        const addPrizeButton = document.getElementById('add-prize');
+        const saveSettingsButton = document.getElementById('save-settings');
+        const staffLoginButton = document.getElementById('staff-login');
+        const authModal = document.getElementById('authModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const unlockButton = document.getElementById('unlockButton');
+        const cancelUnlockButton = document.getElementById('cancelUnlockButton');
+        const passwordError = document.getElementById('passwordError');
+        const officialModeBanner = document.getElementById('officialModeBanner');
+        const titleInput = document.getElementById('title-input');
+
+        let prizes = [];
+        let isSpinning = false;
+        let currentRotation = 0;
+        let isOfficialMode = false;
+        let tempSettings = {}; // 用於暫存設定面板的更改
+
+        // --- 2. 音效設定 ---
+        let audioInitialized = false;
+        let tickSynth, winSynth;
+
+        function initAudio() {
+            if (audioInitialized || typeof Tone === 'undefined') return;
+            try {
+                tickSynth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.001, decay: 0.1, sustain: 0.01, release: 0.1 } }).toDestination();
+                winSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.5 } }).toDestination();
+                audioInitialized = true;
+            } catch (error) { console.error("音效初始化失敗:", error); }
+        }
+
+        // --- 3. 轉盤核心功能 ---
+        function createWheel() {
+            wheel.innerHTML = '';
+            if (prizes.length === 0) {
+                wheel.style.background = '#334155';
+                const emptyText = document.createElement('div');
+                emptyText.textContent = "請先設定獎項";
+                emptyText.className = "flex items-center justify-center h-full text-2xl font-bold text-slate-400";
+                wheel.appendChild(emptyText);
+                spinButton.disabled = true;
+                return;
+            };
+            spinButton.disabled = prizes.length < 2;
+
+            const numPrizes = prizes.length;
+            const prizeAngle = 360 / numPrizes;
+            
+            const gradient = prizes.map((p, i) => `${p.color} ${i * prizeAngle}deg ${(i + 1) * prizeAngle}deg`).join(', ');
+            wheel.style.background = `conic-gradient(from -90deg, ${gradient})`;
+
+            prizes.forEach((prize, i) => {
+                const rotation = i * prizeAngle + prizeAngle / 2;
+                const prizeElement = document.createElement('div');
+                prizeElement.classList.add('prize');
+                prizeElement.style.transform = `rotate(${rotation}deg)`;
+                const prizeText = document.createElement('span');
+                prizeText.textContent = prize.text;
+                prizeElement.appendChild(prizeText);
+                wheel.appendChild(prizeElement);
+            });
+        }
+
+        spinButton.addEventListener('click', () => {
+            if (isSpinning || spinButton.disabled) return;
+            
+            if (!audioInitialized && typeof Tone !== 'undefined') {
+                Tone.start().then(initAudio);
+            }
+
+            isSpinning = true;
+            spinButton.disabled = true;
+
+            const winnerIndex = getWinnerByWeight();
+            if (winnerIndex === -1) {
+                alert("獎項設定錯誤，無法抽獎");
+                isSpinning = false;
+                spinButton.disabled = false;
+                return;
+            }
+            const wonPrize = prizes[winnerIndex];
+            
+            const numPrizes = prizes.length;
+            const prizeAngle = 360 / numPrizes;
+            const winnerCenterAngle = winnerIndex * prizeAngle + prizeAngle / 2;
+            const targetRotation = -winnerCenterAngle;
+            const randomSpins = (5 + Math.floor(Math.random() * 4)) * 360;
+            const newRotation = currentRotation - (currentRotation % 360) + randomSpins + targetRotation;
+            currentRotation = newRotation;
+            
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            
+            let tickCount = 0;
+            const tickInterval = setInterval(() => {
+                if (tickSynth) { tickSynth.triggerAttackRelease('C6', '8n'); }
+                if (++tickCount > 80) { clearInterval(tickInterval); }
+            }, 70);
+
+            setTimeout(() => {
+                clearInterval(tickInterval);
+                showResult(wonPrize, isOfficialMode);
+                isSpinning = false;
+            }, 6000);
+        });
+
+        function getWinnerByWeight() {
+            const totalWeight = prizes.reduce((sum, prize) => sum + prize.weight, 0);
+            if (totalWeight <= 0) return -1;
+            let randomNum = Math.random() * totalWeight;
+            for (let i = 0; i < prizes.length; i++) {
+                if (randomNum < prizes[i].weight) return i;
+                randomNum -= prizes[i].weight;
+            }
+            return prizes.length - 1;
+        }
+
+        // --- 4. 結果顯示 & 特效 ---
+        function showResult(prize, isOfficial) {
+            resultTitle.textContent = isOfficial ? '恭喜您抽中！' : '哇！差點就中獎了！';
+            resultText.textContent = prize.text;
+
+            if (isOfficial) {
+                resultInstructions.innerHTML = '';
+                resultInstructions.style.display = 'none';
+                closeModalButton.textContent = '太棒了！';
+                if (prize.text !== '銘謝惠顧') {
+                    if (winSynth) winSynth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '0.5s');
+                    startConfetti();
+                } else {
+                    if (winSynth) winSynth.triggerAttackRelease(['C3', 'A2'], '0.5s');
+                }
+            } else {
+                resultInstructions.style.display = 'block';
+                resultInstructions.innerHTML = `
+                    <p class="font-bold text-lg text-cyan-400 mb-2 text-center">想試試真正的好手氣嗎？</p>
+                    <ol class="list-decimal list-inside space-y-1 text-center">
+                        <li>找到我們熱情的門市夥伴！</li>
+                        <li>輕鬆掃碼，加入官方LINE@好友。</li>
+                        <li>即可啟動「官方抽獎」，把夢幻好禮帶回家！</li>
+                    </ol>
+                `;
+                closeModalButton.textContent = '了解！';
+            }
+            
+            resultModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
+        }
+        
+        function hideResult() {
+            resultModal.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
+            stopConfetti();
+            if (isOfficialMode) {
+                exitOfficialMode();
+            } else {
+                spinButton.disabled = false;
+            }
+        }
+
+        closeModalButton.addEventListener('click', hideResult);
+        resultModal.addEventListener('click', (e) => { if (e.target === resultModal) hideResult(); });
+
+        // --- 5. 彩帶動畫 ---
+        let confettiParticles = [];
+        let animationFrameId;
+
+        function startConfetti() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            confettiParticles = [];
+            const particleCount = 200;
+            const colors = ['#22d3ee', '#67e8f9', '#a5f3fc', '#ecfeff'];
+            for (let i = 0; i < particleCount; i++) {
+                confettiParticles.push({
+                    x: Math.random() * confettiCanvas.width, y: -20,
+                    w: Math.random() * 10 + 5, h: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speed: Math.random() * 3 + 2, angle: Math.random() * Math.PI * 2,
+                });
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles.forEach((p, i) => {
+                p.y += p.speed;
+                p.x += Math.sin(p.angle + p.y * 0.1) * 2;
+                p.angle += 0.1;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.rect(p.x, p.y, p.w, p.h);
+                ctx.fill();
+                if (p.y > confettiCanvas.height) { confettiParticles.splice(i, 1); }
+            });
+            if (confettiParticles.length > 0) {
+                animationFrameId = requestAnimationFrame(animateConfetti);
+            } else {
+                ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            }
+        }
+        
+        function stopConfetti() {
+            confettiParticles = [];
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); }
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+
+        // --- 6. 後台設定面板邏輯 ---
+        function renderPrizeSettings(settings) {
+            tempSettings = JSON.parse(JSON.stringify(settings));
+            titleInput.value = tempSettings.title || 'LUCKY WHEEL';
+            prizeListContainer.innerHTML = '';
+            tempSettings.prizes.forEach((prize, index) => {
+                const prizeItem = document.createElement('div');
+                prizeItem.className = 'p-4 bg-slate-700 rounded-lg flex flex-col space-y-3';
+                prizeItem.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold">獎項 ${index + 1}</label>
+                        <button data-index="${index}" class="remove-prize text-red-400 hover:text-red-600 font-bold">移除</button>
+                    </div>
+                    <input type="text" value="${prize.text}" data-index="${index}" data-key="text" class="prize-input w-full p-2 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="獎項名稱">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm">顏色:</label>
+                        <input type="color" value="${prize.color}" data-index="${index}" data-key="color" class="prize-input h-8 w-12 p-1 bg-slate-800 border border-slate-600 rounded cursor-pointer">
+                        <label class="text-sm ml-auto">權重:</label>
+                        <input type="number" value="${prize.weight}" data-index="${index}" data-key="weight" class="prize-input w-20 p-2 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" placeholder="權重">
+                    </div>
+                `;
+                prizeListContainer.appendChild(prizeItem);
+            });
+        }
+        
+        prizeListContainer.addEventListener('change', (e) => {
+            if (e.target.classList.contains('prize-input')) {
+                const index = parseInt(e.target.dataset.index);
+                const key = e.target.dataset.key;
+                const value = e.target.type === 'number' ? parseInt(e.target.value) || 1 : e.target.value;
+                tempSettings.prizes[index][key] = value;
+            }
+        });
+
+        prizeListContainer.addEventListener('click', (e) => {
+             if (e.target.classList.contains('remove-prize')) {
+                const index = parseInt(e.target.dataset.index);
+                tempSettings.prizes.splice(index, 1);
+                renderPrizeSettings(tempSettings);
+            }
+        });
+
+        addPrizeButton.addEventListener('click', () => {
+            tempSettings.prizes.push({ text: '新獎項', color: '#1e40af', weight: 10 });
+            renderPrizeSettings(tempSettings);
+        });
+
+        saveSettingsButton.addEventListener('click', () => {
+            tempSettings.title = titleInput.value.trim() || '轉動你的三星幸運輪盤';
+            tempSettings.prizes = tempSettings.prizes.filter(p => p.text && p.text.trim() !== '');
+
+            if (tempSettings.prizes.length < 2) {
+                alert('請至少設定兩個獎項！');
+                return;
+            }
+            prizes = JSON.parse(JSON.stringify(tempSettings.prizes));
+            mainTitle.textContent = tempSettings.title;
+            
+            saveSettingsToStorage({ title: tempSettings.title, prizes: prizes });
+            createWheel();
+            settingsPanel.classList.remove('open');
+        });
+
+        // --- 7. 本地儲存邏輯 ---
+        function saveSettingsToStorage(settings) {
+            localStorage.setItem('luckyWheelSettings', JSON.stringify(settings));
+        }
+
+        function loadSettingsFromStorage() {
+            const storedSettings = localStorage.getItem('luckyWheelSettings');
+            if (storedSettings) {
+                const settings = JSON.parse(storedSettings);
+                prizes = settings.prizes;
+                mainTitle.textContent = settings.title;
+                return settings;
+            } else {
+                const defaultSettings = {
+                    title: '轉動你的三星幸運輪盤',
+                    prizes: [
+                        { text: '行動電源', color: '#1e3a8a', weight: 1 },
+                        { text: '摺疊餐具組', color: '#1e40af', weight: 5 },
+                        { text: '現翠茶', color: '#1d4ed8', weight: 5 },
+                        { text: '筆記本', color: '#2563eb', weight: 15 },
+                        { text: '原子筆', color: '#3b82f6', weight: 15 },
+                        { text: '扇子', color: '#60a5fa', weight: 15 },
+                        { text: 'AI貼紙', color: '#93c5fd', weight: 15 },
+                        { text: 'AI 帆布袋', color: '#bfdbfe', weight: 15 },
+                        { text: '銘謝惠顧', color: '#64748b', weight: 14 }
+                    ]
+                };
+                prizes = defaultSettings.prizes;
+                mainTitle.textContent = defaultSettings.title;
+                return defaultSettings;
+            }
+        }
+
+        // --- 8. 官方模式切換邏輯 ---
+        function enterOfficialMode() {
+            isOfficialMode = true;
+            mainContainer.classList.add('official-mode');
+            officialModeBanner.classList.remove('opacity-0');
+            spinButton.textContent = '進行官方抽獎';
+            spinButton.disabled = false;
+            authModal.classList.add('opacity-0', 'pointer-events-none');
+            settingsToggle.style.display = 'flex';
+        }
+
+        function exitOfficialMode() {
+            isOfficialMode = false;
+            mainContainer.classList.remove('official-mode');
+            officialModeBanner.classList.add('opacity-0');
+            spinButton.textContent = '開始抽獎';
+            spinButton.disabled = prizes.length < 2;
+            settingsToggle.style.display = 'none';
+            settingsPanel.classList.remove('open');
+        }
+
+        staffLoginButton.addEventListener('click', () => {
+            passwordInput.value = '';
+            passwordError.textContent = '';
+            authModal.classList.remove('opacity-0', 'pointer-events-none');
+            passwordInput.focus();
+        });
+        
+        settingsToggle.addEventListener('click', () => {
+            const currentSettings = { title: mainTitle.textContent, prizes: prizes };
+            renderPrizeSettings(currentSettings);
+            settingsPanel.classList.toggle('open');
+        });
+
+        function handleUnlockAttempt() {
+            passwordError.textContent = '';
+            if (passwordInput.value === STAFF_PASSWORD) {
+                enterOfficialMode();
+            } else {
+                passwordError.textContent = '密碼錯誤，請重試。';
+                passwordInput.select();
+            }
+        }
+
+        unlockButton.addEventListener('click', handleUnlockAttempt);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleUnlockAttempt();
+        });
+        cancelUnlockButton.addEventListener('click', () => {
+            authModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+
+        // --- 9. 初始化 ---
+        window.onload = () => {
+            const settings = loadSettingsFromStorage();
+            createWheel();
+            exitOfficialMode();
+        };
+
+        window.onresize = () => {
+            stopConfetti();
+            if (confettiCanvas) {
+                confettiCanvas.width = window.innerWidth;
+                confettiCanvas.height = window.innerHeight;
+            }
+        };
+    </script>
+</body>
+</html>
