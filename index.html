@@ -219,8 +219,8 @@
     <div id="resultModal" class="result-modal modal-backdrop fixed inset-0 flex items-center justify-center opacity-0 pointer-events-none transform scale-90 z-[10001]">
         <div class="modal-content p-8 rounded-2xl w-11/12 max-w-md text-center">
             <h2 id="resultTitle" class="text-2xl font-bold text-white mb-4"></h2>
-            <p id="resultText" class="text-5xl font-bold text-cyan-400 my-6" style="text-shadow: 0 0 15px rgba(56, 189, 248, 0.7);"></p>
-            <div id="resultInstructions" class="mt-6 text-left text-slate-300 text-base bg-slate-800/50 p-4 rounded-lg"></div>
+            <p id="resultText" class="text-4xl md:text-5xl font-bold text-cyan-400 my-6" style="text-shadow: 0 0 15px rgba(56, 189, 248, 0.7);"></p>
+            <div id="resultInstructions" class="mt-6"></div>
             <button id="closeModalButton" class="spin-button mt-6">太棒了！</button>
         </div>
     </div>
@@ -428,14 +428,19 @@
                     if (winSynth) winSynth.triggerAttackRelease(['C3', 'A2'], '0.5s');
                 }
             } else {
-                resultInstructions.style.display = 'block';
+                resultInstructions.style.display = 'flex';
                 resultInstructions.innerHTML = `
-                    <p class="font-bold text-lg text-cyan-400 mb-2 text-center">想試試真正的好手氣嗎？</p>
-                    <ol class="list-decimal list-inside space-y-1 text-center">
-                        <li>找到我們熱情的門市夥伴！</li>
-                        <li>輕鬆掃碼，加入官方LINE@好友。</li>
-                        <li>即可啟動「官方抽獎」，把夢幻好禮帶回家！</li>
-                    </ol>
+                    <div class="text-left text-slate-300 text-base flex-1">
+                        <p class="font-bold text-lg text-cyan-400 mb-2">想試試真正的好手氣嗎？</p>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>找到我們熱情的門市夥伴！</li>
+                            <li>掃描QR Code，加入官方LINE@。</li>
+                            <li>即可啟動「官方抽獎」，把夢幻好禮帶回家！</li>
+                        </ol>
+                    </div>
+                    <div class="ml-4 flex-shrink-0">
+                        <img src="https://raw.githubusercontent.com/andyhhsu/breeze-Prize-Wheel/main/LINE.png" onerror="this.onerror=null;this.src='https://placehold.co/128x128/ffffff/000000?text=QR+Code';" alt="QR Code" class="w-32 h-32 rounded-lg bg-white p-1">
+                    </div>
                 `;
                 closeModalButton.textContent = '了解！';
             }
