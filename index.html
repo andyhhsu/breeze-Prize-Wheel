@@ -16,27 +16,22 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-S73FN7CZPS');
     </script>
 
     <style>
-        @keyframes slow-pan {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
+        @keyframes slow-pan { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5), 0 0 0 0 rgba(59, 130, 246, 0.5); }
             70% { box-shadow: 0 0 16px rgba(59, 130, 246, 0.8), 0 0 0 10px rgba(59, 130, 246, 0); }
             100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.5), 0 0 0 0 rgba(59, 130, 246, 0); }
         }
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
+        @keyframes prize-glow {
+            0% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); }
+            50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); }
+            100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); }
         }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #0c1326;
@@ -59,142 +54,66 @@
             position: relative;
             width: 100%;
             max-width: 450px;
-            margin: 30px auto;
+            margin: 1rem auto;
             filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
             aspect-ratio: 1 / 1;
         }
         .wheel {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 4px solid #fff;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%; overflow: hidden; border: 4px solid #fff;
             box-shadow: 0 0 20px rgba(255,255,255,0.3), inset 0 0 25px rgba(0,0,0,0.5);
             transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .prize {
-            position: absolute; top: 50%; left: 50%; width: 1px; height: 1px; transform-origin: center center;
-        }
+        .prize { position: absolute; top: 50%; left: 50%; width: 1px; height: 1px; transform-origin: center center; }
         .prize > span {
-            display: block;
-            transform: translate(-50%, -28vw) rotate(-90deg);
-            color: #ffffff;
-            font-weight: 500;
-            font-size: clamp(12px, 3.5vw, 16px);
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
-            white-space: nowrap;
-            text-align: center;
-            width: 150px;
+            display: block; transform: translate(-50%, -28vw) rotate(-90deg);
+            color: #ffffff; font-weight: 500; font-size: clamp(12px, 3.5vw, 16px);
+            text-shadow: 0 0 5px rgba(0,0,0,0.8); white-space: nowrap; text-align: center; width: 150px;
         }
-        @media (min-width: 500px) {
-             .prize > span {
-                transform: translate(-50%, -125px) rotate(-90deg);
-             }
-        }
+        @media (min-width: 500px) { .prize > span { transform: translate(-50%, -125px) rotate(-90deg); } }
         .pointer {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            border: 5px solid #fff;
-            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
+            position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+            background: #fff; border-radius: 50%; transform: translate(-50%, -50%);
+            z-index: 10; border: 5px solid #fff; box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
         }
         .pointer::before {
-            content: '';
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-bottom: 36px solid #fff;
-            filter: drop-shadow(0 -5px 5px rgba(255,255,255,0.5));
+            content: ''; position: absolute; top: -40px; left: 50%;
+            transform: translateX(-50%); width: 0; height: 0;
+            border-left: 18px solid transparent; border-right: 18px solid transparent;
+            border-bottom: 36px solid #fff; filter: drop-shadow(0 -5px 5px rgba(255,255,255,0.5));
         }
         .spin-button {
-            background: rgba(59, 130, 246, 0.8);
-            border: 1px solid rgba(59, 130, 246, 1);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-            transition: all 0.2s ease-in-out;
-            color: white;
-            font-weight: 700;
-            font-size: 1.25rem;
-            padding: 0.75rem 2.5rem;
-            border-radius: 0.75rem;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            background: rgba(59, 130, 246, 0.8); border: 1px solid rgba(59, 130, 246, 1);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); transition: all 0.2s ease-in-out;
+            color: white; font-weight: 700; font-size: 1.25rem;
+            padding: 0.75rem 2.5rem; border-radius: 0.75rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         .spin-button:hover:not(:disabled) {
-            background: rgba(96, 165, 250, 0.9);
-            box-shadow: 0 0 25px rgba(96, 165, 250, 0.7);
+            background: rgba(96, 165, 250, 0.9); box-shadow: 0 0 25px rgba(96, 165, 250, 0.7);
             transform: translateY(-2px);
         }
-        .spin-button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            background: #374151;
-            box-shadow: none;
-        }
-        .spin-button:not(:disabled):active {
-            transform: translateY(1px);
-        }
-        .modal-backdrop {
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
+        .spin-button:disabled { opacity: 0.4; cursor: not-allowed; background: #374151; box-shadow: none; }
+        .spin-button:not(:disabled):active { transform: translateY(1px); }
+        .modal-backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
         .modal-content {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(59, 130, 246, 0.4);
+            backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         .staff-login-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10001;
-            background-color: #1d4ed8;
-            color: white;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(255,255,255,0.5);
-            cursor: pointer;
-            transition: all 0.3s;
+            position: fixed; bottom: 20px; right: 20px; z-index: 10001;
+            background-color: #1d4ed8; color: white; border-radius: 50%;
+            width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s;
             animation: pulse-glow 2s infinite;
         }
-        .staff-login-button:hover {
-            transform: scale(1.1);
-            animation-play-state: paused;
-        }
+        .staff-login-button:hover { transform: scale(1.1); animation-play-state: paused; }
         .settings-panel {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 100%;
-            max-width: 400px;
-            height: 100%;
-            background-color: #1e293b;
-            padding: 2rem;
-            box-shadow: -10px 0 20px rgba(0,0,0,0.3);
-            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 10002;
-            overflow-y: auto;
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%;
+            background-color: #1e293b; padding: 2rem; box-shadow: -10px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 10002; overflow-y: auto;
         }
         .settings-panel.open { right: 0; }
-        .settings-toggle-button {
-            position: fixed; top: 20px; right: 20px; z-index: 10003;
-        }
+        .settings-toggle-button { position: fixed; top: 20px; right: 20px; z-index: 10003; }
     </style>
 </head>
 <body>
@@ -204,13 +123,32 @@
                 官方抽獎模式
             </div>
             <h1 id="mainTitle" class="text-3xl sm:text-4xl font-bold text-white mb-2" style="text-shadow: 0 0 10px rgba(96, 165, 250, 0.7);">LUCKY WHEEL</h1>
-            <p class="text-slate-300 mb-6">點擊下方按鈕，抽出你的專屬幸運！</p>
+            <p class="text-slate-300 mb-4">點擊下方按鈕，抽出你的專屬幸運！</p>
+            
+            <!-- 大獎預告 -->
+            <div id="grand-prize-container" class="my-4 p-3 bg-slate-900/50 rounded-lg flex items-center justify-center gap-4 border border-blue-500/30">
+                <div class="w-20 h-20 bg-white/10 rounded-full p-1 flex items-center justify-center">
+                    <img id="grand-prize-image" src="https://raw.githubusercontent.com/andyhhsu/breeze-Prize-Wheel/main/175000-removebg-preview.png" alt="Grand Prize" class="w-full h-full object-contain" style="animation: prize-glow 3s infinite;">
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-cyan-400">今日限定大獎</h3>
+                    <p id="grand-prize-name" class="text-lg font-bold text-white">行動電源</p>
+                </div>
+            </div>
+
             <div class="wheel-container">
                 <div class="wheel" id="wheel"></div>
                 <div class="pointer"></div>
             </div>
             <div class="mt-6">
                 <button id="spinButton" class="spin-button">開始抽獎</button>
+            </div>
+
+            <!-- 即時得獎榜 -->
+            <div id="winner-board-container" class="mt-6 h-16 overflow-hidden relative">
+                <div id="winner-list" class="absolute top-0 left-0 w-full">
+                    <!-- 得獎名單將由JS動態生成 -->
+                </div>
             </div>
         </div>
     </div>
@@ -268,7 +206,7 @@
     <script>
         // --- 0. 活動設定 ---
         const STAFF_PASSWORD = 'samsung888';
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby807uI_mVGjpQRydAUitIxISRw9Fhup_rehG7aOoBwQTdEU6jCrbm7Ned2D13xXPgT/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzoKarPMeTMXOxUciPWQisJRThU1Pq5VKvTVn4mQySw0GKAFyHxbSX-gcAu0WKSqNg/exec'; 
 
         // --- 1. DOM 元素 & 全域變數 ---
         const mainContainer = document.getElementById('mainContainer');
@@ -295,6 +233,8 @@
         const passwordError = document.getElementById('passwordError');
         const officialModeBanner = document.getElementById('officialModeBanner');
         const titleInput = document.getElementById('title-input');
+        const grandPrizeName = document.getElementById('grand-prize-name');
+        const winnerList = document.getElementById('winner-list');
 
         let prizes = [];
         let isSpinning = false;
@@ -428,18 +368,20 @@
                     if (winSynth) winSynth.triggerAttackRelease(['C3', 'A2'], '0.5s');
                 }
             } else {
-                resultInstructions.style.display = 'flex';
+                resultInstructions.style.display = 'block';
                 resultInstructions.innerHTML = `
-                    <div class="text-left text-slate-300 text-base flex-1">
-                        <p class="font-bold text-lg text-cyan-400 mb-2">想試試真正的好手氣嗎？</p>
-                        <ol class="list-decimal list-inside space-y-1">
-                            <li>找到我們熱情的門市夥伴！</li>
-                            <li>掃描QR Code，加入官方LINE@。</li>
-                            <li>即可啟動「官方抽獎」，把夢幻好禮帶回家！</li>
-                        </ol>
-                    </div>
-                    <div class="ml-4 flex-shrink-0">
-                        <img src="https://raw.githubusercontent.com/andyhhsu/breeze-Prize-Wheel/main/LINE.png" onerror="this.onerror=null;this.src='https://placehold.co/128x128/ffffff/000000?text=QR+Code';" alt="QR Code" class="w-32 h-32 rounded-lg bg-white p-1">
+                    <div class="flex flex-col md:flex-row items-center justify-center text-center md:text-left">
+                        <div class="flex-1">
+                            <p class="font-bold text-lg text-cyan-400 mb-2">想試試真正的好手氣嗎？</p>
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li>找到我們熱情的門市夥伴！</li>
+                                <li>掃描QR Code，加入官方LINE@。</li>
+                                <li>即可啟動「官方抽獎」，把夢幻好禮帶回家！</li>
+                            </ol>
+                        </div>
+                        <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0">
+                            <img src="https://raw.githubusercontent.com/andyhhsu/breeze-Prize-Wheel/main/LINE.png?raw=true" onerror="this.onerror=null;this.src='https://placehold.co/128x128/ffffff/000000?text=QR+Code';" alt="QR Code" class="w-32 h-32 rounded-lg bg-white p-1">
+                        </div>
                     </div>
                 `;
                 closeModalButton.textContent = '了解！';
@@ -567,6 +509,7 @@
             
             saveSettingsToStorage({ title: tempSettings.title, prizes: prizes });
             createWheel();
+            updateGrandPrizeDisplay();
             settingsPanel.classList.remove('open');
         });
 
@@ -673,11 +616,53 @@
             authModal.classList.add('opacity-0', 'pointer-events-none');
         });
 
-        // --- 9. 初始化 ---
+        // --- 9. 新功能：大獎與得獎榜 ---
+        function updateGrandPrizeDisplay() {
+            if (prizes.length > 0) {
+                const grandPrize = [...prizes]
+                    .filter(p => p.text !== '銘謝惠顧')
+                    .sort((a, b) => a.weight - b.weight)[0];
+                
+                if (grandPrize) {
+                    grandPrizeName.textContent = grandPrize.text;
+                }
+            }
+        }
+
+        async function fetchLatestWinners() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getWinners`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateWinnerBoard(data.winners);
+            } catch (error) {
+                console.error('Error fetching winners:', error);
+                winnerList.innerHTML = `<p class="text-slate-500 text-center py-4">無法載入得獎紀錄...</p>`;
+            }
+        }
+
+        function updateWinnerBoard(winners) {
+            if (!winners || winners.length === 0) {
+                winnerList.innerHTML = `<p class="text-slate-400 text-center py-4">目前尚無得獎紀錄，快來挑戰！</p>`;
+                return;
+            }
+            
+            winnerList.innerHTML = winners.map(winner => 
+                `<p class="text-center py-2 text-slate-300">🎉 恭喜一位幸運顧客抽中 <span class="font-bold text-cyan-400">${winner.prize}</span>！</p>`
+            ).join('');
+        }
+
+        // --- 10. 初始化 ---
         window.onload = () => {
             const settings = loadSettingsFromStorage();
             createWheel();
             exitOfficialMode();
+            updateGrandPrizeDisplay();
+            fetchLatestWinners();
+            setInterval(fetchLatestWinners, 30000);
         };
 
         window.onresize = () => {
