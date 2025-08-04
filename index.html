@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轉轉Galaxy ！</title>
+    <title>轉轉Galaxy </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <!-- Google tag (gtag.js) - GA4 評估 ID -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S73FN7CZPS"></script>
@@ -100,16 +100,20 @@
             color: #ffffff; font-weight: 700; font-size: 14px;
             text-shadow: 0 0 5px rgba(0,0,0,0.8); white-space: nowrap; text-align: center; width: 150px;
         }
+        /* 優化：指針立體感 */
         .pointer {
             position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
-            background: #fff; border-radius: 50%; transform: translate(-50%, -50%);
-            z-index: 10; border: 5px solid #fff; box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
+            background: radial-gradient(circle at 50% 40%, #ffffff, #f0f0f0, #d0d0d0);
+            border-radius: 50%; transform: translate(-50%, -50%);
+            z-index: 10; border: 2px solid #a0a0a0;
+            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7), inset 0 2px 3px rgba(0,0,0,0.3);
         }
         .pointer::before {
-            content: ''; position: absolute; top: -40px; left: 50%;
+            content: ''; position: absolute; top: -42px; left: 50%;
             transform: translateX(-50%); width: 0; height: 0;
             border-left: 18px solid transparent; border-right: 18px solid transparent;
-            border-bottom: 36px solid #fff; filter: drop-shadow(0 -5px 5px rgba(255,255,255,0.5));
+            border-bottom: 36px solid #e0e0e0;
+            filter: drop-shadow(0 -3px 4px rgba(0,0,0,0.4));
         }
         .spin-button {
             background-image: linear-gradient(to right, #3b82f6, #60a5fa);
@@ -173,7 +177,7 @@
             官方抽獎模式
         </div>
         <div>
-            <h1 id="mainTitle" class="text-2xl sm:text-3xl font-bold text-white mb-1" style="text-shadow: 0 0 10px rgba(96, 165, 250, 0.7);">LUCKY WHEEL</h1>
+            <h1 id="mainTitle" class="text-2xl sm:text-3xl font-bold text-white mb-1" style="font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px rgba(96, 165, 250, 0.7); letter-spacing: 0.1em;">LUCKY WHEEL</h1>
             <p class="text-slate-300 text-sm sm:text-base">點擊下方按鈕，抽出你的專屬幸運！</p>
         </div>
         
@@ -258,7 +262,7 @@
         
         // 模擬抽獎獎項設定
         const SIMULATION_PRIZES = {
-            title: '轉轉Galaxy ！',
+            title: '轉轉Galaxy ',
             prizes: [
                 { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
                 { text: '環保餐具組', color: '#1e40af', weight: 3 },
@@ -273,7 +277,7 @@
 
         // 官方抽獎預設獎項設定
         const DEFAULT_OFFICIAL_PRIZES = {
-            title: '轉轉Galaxy ！ - 官方抽獎',
+            title: '轉轉Galaxy  - 官方抽獎',
             prizes: [
                 { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
                 { text: '環保餐具組', color: '#1e40af', weight: 3 },
