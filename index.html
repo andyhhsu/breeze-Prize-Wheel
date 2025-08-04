@@ -87,15 +87,22 @@
         .prize { position: absolute; top: 50%; left: 50%; width: 1px; height: 1px; transform-origin: center center; }
         .prize > span {
             display: block;
-            transform: translate(-50%, -120px) rotate(-90deg);
+            transform: translate(-50%, -25vw) rotate(-90deg); /* 使用 vw 進行響應式定位 */
             color: #ffffff;
             font-weight: 700;
-            font-size: 13px;
+            font-size: clamp(10px, 3vw, 14px); /* 使用 clamp 進行響應式字體大小 */
             text-shadow: 0 0 5px rgba(0,0,0,0.8);
             white-space: normal;
             text-align: center;
-            width: 110px;
+            width: 24vw; /* 使用 vw 進行響應式寬度 */
             line-height: 1.2;
+        }
+        @media (min-width: 480px) {
+            .prize > span {
+                transform: translate(-50%, -120px) rotate(-90deg);
+                width: 110px;
+                font-size: 13px;
+            }
         }
         /* 優化：指針立體感 */
         .pointer {
