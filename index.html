@@ -40,15 +40,6 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        /* 新增：打字機效果動畫 */
-        @keyframes typing {
-             0% { width: 0; }
-             80%, 100% { width: 100%; }
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: white; }
-        }
         html, body { 
             width: 100%; 
             margin: 0; 
@@ -95,10 +86,16 @@
         }
         .prize { position: absolute; top: 50%; left: 50%; width: 1px; height: 1px; transform-origin: center center; }
         .prize > span {
-            display: block; 
+            display: block;
             transform: translate(-50%, -120px) rotate(-90deg);
-            color: #ffffff; font-weight: 700; font-size: 14px;
-            text-shadow: 0 0 5px rgba(0,0,0,0.8); white-space: nowrap; text-align: center; width: 150px;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+            white-space: normal;
+            text-align: center;
+            width: 110px;
+            line-height: 1.2;
         }
         /* 優化：指針立體感 */
         .pointer {
@@ -157,17 +154,8 @@
         .settings-panel.open { right: 0; }
         .settings-toggle-button { position: fixed; top: 20px; right: 20px; z-index: 10003; }
         
-        /* 新增：待機動畫class */
         .spin-slow {
             animation: spin-slow 15s linear infinite;
-        }
-        .typing-effect {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: .15em solid white;
-            animation: 
-                typing var(--typing-duration, 2s) steps(var(--typing-chars, 10), end) infinite,
-                blink-caret 1s step-end infinite;
         }
     </style>
 </head>
@@ -264,7 +252,7 @@
         const SIMULATION_PRIZES = {
             title: '轉轉Galaxy ',
             prizes: [
-                { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
+                { text: '10,000mAh<br>行動電源', color: '#1e3a8a', weight: 1 },
                 { text: '環保餐具組', color: '#1e40af', weight: 3 },
                 { text: '皮革飲料袋', color: '#1d4ed8', weight: 6 },
                 { text: '摺疊扇', color: '#2563eb', weight: 9 },
@@ -279,7 +267,7 @@
         const DEFAULT_OFFICIAL_PRIZES = {
             title: '轉轉Galaxy  - 官方抽獎',
             prizes: [
-                { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
+                { text: '10,000mAh<br>行動電源', color: '#1e3a8a', weight: 1 },
                 { text: '環保餐具組', color: '#1e40af', weight: 3 },
                 { text: '皮革飲料袋', color: '#1d4ed8', weight: 6 },
                 { text: '摺疊扇', color: '#2563eb', weight: 9 },
@@ -365,7 +353,7 @@
                 prizeElement.classList.add('prize');
                 prizeElement.style.transform = `rotate(${rotation}deg)`;
                 const prizeText = document.createElement('span');
-                prizeText.textContent = prize.text;
+                prizeText.innerHTML = prize.text; // Use innerHTML to support <br>
                 prizeElement.appendChild(prizeText);
                 wheel.appendChild(prizeElement);
             });
@@ -374,9 +362,7 @@
         spinButton.addEventListener('click', () => {
             if (isSpinning || spinButton.disabled) return;
             
-            // 點擊時停止待機動畫
             grandPrizeImage.classList.remove('spin-slow');
-            grandPrizeName.classList.remove('typing-effect');
 
             if (!audioInitialized && typeof Tone !== 'undefined') {
                 Tone.start().then(initAudio);
@@ -437,7 +423,7 @@
         // --- 4. 結果顯示 & 特效 ---
         function showResult(prize, isOfficial) {
             resultTitle.textContent = isOfficial ? '恭喜您抽中！' : '恭喜完成模擬抽獎';
-            resultText.textContent = prize.text;
+            resultText.textContent = prize.text.replace(/<br>/g, ' ');
 
             gtag('event', 'show_result', {
               'event_category': 'conversion',
@@ -485,7 +471,6 @@
                 exitOfficialMode();
             } else {
                 spinButton.disabled = prizes.length < 2;
-                // 抽獎結束後重新啟動待機動畫
                 updateGrandPrizeDisplay();
             }
         }
@@ -552,7 +537,7 @@
                         <label class="font-bold">獎項 ${index + 1}</label>
                         <button data-index="${index}" class="remove-prize text-red-400 hover:text-red-600 font-bold">移除</button>
                     </div>
-                    <input type="text" value="${prize.text}" data-index="${index}" data-key="text" class="prize-input w-full p-2 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="獎項名稱">
+                    <input type="text" value="${prize.text.replace(/<br>/g, ' ')}" data-index="${index}" data-key="text" class="prize-input w-full p-2 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="獎項名稱 (用空格斷行)">
                     <div class="flex items-center space-x-2">
                         <label class="text-sm">顏色:</label>
                         <input type="color" value="${prize.color}" data-index="${index}" data-key="color" class="prize-input h-8 w-12 p-1 bg-slate-800 border border-slate-600 rounded cursor-pointer">
@@ -565,8 +550,11 @@
         }
         
         prizeListContainer.addEventListener('change', (e) => {
-            if (e.target.classList.contains('prize-input')) {
+            if (e.target.classList.contains('prize-input') && e.target.dataset.key === 'text') {
                 const index = parseInt(e.target.dataset.index);
+                tempSettings.prizes[index].text = e.target.value.replace(/\s+/g, '<br>');
+            } else if (e.target.classList.contains('prize-input')) {
+                 const index = parseInt(e.target.dataset.index);
                 const key = e.target.dataset.key;
                 const value = e.target.type === 'number' ? parseInt(e.target.value) || 1 : e.target.value;
                 tempSettings.prizes[index][key] = value;
@@ -655,7 +643,7 @@
 
         function logResultToSheet(prize, isOfficial) {
             if (!GOOGLE_SCRIPT_URL) return;
-            const data = { prize: prize.text, mode: isOfficial ? '官方' : '試玩' };
+            const data = { prize: prize.text.replace(/<br>/g, ' '), mode: isOfficial ? '官方' : '試玩' };
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST', mode: 'no-cors', cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
@@ -693,25 +681,17 @@
         // --- 9. 新功能：大獎與得獎榜 ---
         function updateGrandPrizeDisplay() {
             grandPrizeImage.classList.remove('spin-slow');
-            grandPrizeName.classList.remove('typing-effect');
 
             if (prizes.length > 0) {
                 const grandPrize = [...prizes]
-                    .filter(p => p.text !== '銘謝惠顧' && p.text.toLowerCase().indexOf('thank') === -1)
+                    .filter(p => p.text.toLowerCase().indexOf('銘謝惠顧') === -1)
                     .sort((a, b) => a.weight - b.weight)[0];
                 
                 if (grandPrize) {
-                    grandPrizeName.textContent = grandPrize.text;
-                    
-                    const textLength = grandPrize.text.length;
-                    // 設定動畫步驟為實際字數
-                    grandPrizeName.style.setProperty('--typing-chars', textLength);
-                    // 設定總時長 = 打字時間 + 額外停留時間 (例如 1.5 秒)
-                    grandPrizeName.style.setProperty('--typing-duration', `${textLength * 0.2 + 1.5}s`);
+                    grandPrizeName.textContent = grandPrize.text.replace(/<br>/g, ' ');
                     
                     setTimeout(() => {
                         grandPrizeImage.classList.add('spin-slow');
-                        grandPrizeName.classList.add('typing-effect');
                     }, 10);
                 }
             }
@@ -736,7 +716,7 @@
                 return;
             }
             winnerList.innerHTML = winners.map(winner => 
-                `<p class="text-center py-2 text-slate-300">🎉 恭喜一位幸運顧客抽中 <span class="font-bold text-cyan-400">${winner.prize}</span>！</p>`
+                `<p class="text-center py-2 text-slate-300">🎉 恭喜一位幸運顧客抽中 <span class="font-bold text-cyan-400">${winner.prize.replace(/<br>/g, ' ')}</span>！</p>`
             ).join('');
         }
 
