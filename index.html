@@ -31,6 +31,11 @@
             50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); }
             100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); }
         }
+        /* 按鈕呼吸燈效果 */
+        @keyframes pulse-button {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(96, 165, 250, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(96, 165, 250, 0.9); }
+        }
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
         body {
             font-family: 'Noto Sans TC', sans-serif;
@@ -82,18 +87,33 @@
             border-left: 18px solid transparent; border-right: 18px solid transparent;
             border-bottom: 36px solid #fff; filter: drop-shadow(0 -5px 5px rgba(255,255,255,0.5));
         }
+        /* 優化後的抽獎按鈕樣式 */
         .spin-button {
-            background: rgba(59, 130, 246, 0.8); border: 1px solid rgba(59, 130, 246, 1);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); transition: all 0.2s ease-in-out;
-            color: white; font-weight: 700; font-size: 1.25rem;
-            padding: 0.75rem 2.5rem; border-radius: 0.75rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            background-image: linear-gradient(to right, #3b82f6, #60a5fa);
+            border: none;
+            transition: all 0.3s ease-in-out;
+            color: white; font-weight: 900; 
+            font-size: 1.5rem; /* 加大字體 */
+            padding: 1rem 3rem; /* 加大內距 */
+            border-radius: 50px; /* 改為圓角膠囊形狀 */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            animation: pulse-button 2.5s infinite ease-in-out; /* 套用呼吸燈動畫 */
         }
         .spin-button:hover:not(:disabled) {
-            background: rgba(96, 165, 250, 0.9); box-shadow: 0 0 25px rgba(96, 165, 250, 0.7);
-            transform: translateY(-2px);
+            animation-play-state: paused; /* 懸停時暫停動畫 */
+            transform: scale(1.05) translateY(-2px); /* 放大效果 */
+            box-shadow: 0 0 40px rgba(96, 165, 250, 1);
         }
-        .spin-button:disabled { opacity: 0.4; cursor: not-allowed; background: #374151; box-shadow: none; }
-        .spin-button:not(:disabled):active { transform: translateY(1px); }
+        .spin-button:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+            background: #374151; 
+            box-shadow: none; 
+            animation: none; /* 禁用時移除動畫 */
+        }
+        .spin-button:not(:disabled):active { 
+            transform: translateY(1px) scale(1.02);
+        }
         .modal-backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
         .modal-content {
             background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(59, 130, 246, 0.4);
@@ -126,13 +146,13 @@
             <p class="text-slate-300 mb-4">點擊下方按鈕，抽出你的專屬幸運！</p>
             
             <!-- 大獎預告 -->
-            <div id="grand-prize-container" class="my-4 p-3 bg-slate-900/50 rounded-lg flex items-center justify-center gap-4 border border-blue-500/30">
-                <div class="w-20 h-20 bg-white/10 rounded-full p-1 flex items-center justify-center">
+            <div id="grand-prize-container" class="my-6 p-4 bg-slate-900/50 rounded-lg flex items-center justify-center gap-6 border border-blue-500/30">
+                <div class="w-28 h-28 bg-white/10 rounded-full p-2 flex items-center justify-center">
                     <img id="grand-prize-image" src="https://raw.githubusercontent.com/andyhhsu/breeze-Prize-Wheel/main/175000-removebg-preview.png" alt="Grand Prize" class="w-full h-full object-contain" style="animation: prize-glow 3s infinite;">
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-cyan-400">今日限定大獎</h3>
-                    <p id="grand-prize-name" class="text-lg font-bold text-white">行動電源</p>
+                    <h3 class="text-4xl font-bold text-cyan-400">今日限定大獎</h3>
+                    <p id="grand-prize-name" class="text-2xl font-bold text-white">行動電源</p>
                 </div>
             </div>
 
@@ -177,7 +197,7 @@
 
     <!-- 後台設定面板 -->
     <div id="settings-panel" class="settings-panel text-white">
-        <h2 class="text-2xl font-bold mb-6">獎項設定</h2>
+        <h2 class="text-2xl font-bold mb-6">獎項設定 (官方模式)</h2>
         <div class="mb-6">
             <label for="title-input" class="block mb-2 text-sm font-medium text-gray-300">活動主標題</label>
             <input type="text" id="title-input" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="輸入活動主標題">
@@ -185,7 +205,7 @@
         <div id="prize-list" class="space-y-4"></div>
         <button id="add-prize" class="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">新增獎項</button>
         <button id="save-settings" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded">儲存設定並更新轉盤</button>
-        <p class="text-xs text-gray-400 mt-4">所有設定將會自動儲存在您的瀏覽器中。</p>
+        <p class="text-xs text-gray-400 mt-4">官方模式的設定將會自動儲存在您的瀏覽器中。</p>
     </div>
 
     <!-- 店員密碼驗證彈窗 -->
@@ -207,6 +227,37 @@
         // --- 0. 活動設定 ---
         const STAFF_PASSWORD = 'samsung888';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzoKarPMeTMXOxUciPWQisJRThU1Pq5VKvTVn4mQySw0GKAFyHxbSX-gcAu0WKSqNg/exec'; 
+        
+        // 模擬抽獎獎項設定
+        const SIMULATION_PRIZES = {
+            title: '轉動你的三星幸運轉盤',
+            prizes: [
+                { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
+                { text: '環保餐具組', color: '#1e40af', weight: 3 },
+                { text: '皮革飲料袋', color: '#1d4ed8', weight: 6 },
+                { text: '摺疊扇', color: '#2563eb', weight: 9 },
+                { text: 'Z系列免費小升大', color: '#3b82f6', weight: 13 },
+                { text: '潛水艇收納盒', color: '#60a5fa', weight: 18 },
+                { text: 'AI帆布袋', color: '#93c5fd', weight: 23 },
+                { text: '電容式觸控筆', color: '#bfdbfe', weight: 27 },
+            ]
+        };
+
+        // 官方抽獎預設獎項設定
+        const DEFAULT_OFFICIAL_PRIZES = {
+            title: '幸運輪盤 - 官方抽獎',
+            prizes: [
+                { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
+                { text: '環保餐具組', color: '#1e40af', weight: 3 },
+                { text: '皮革飲料袋', color: '#1d4ed8', weight: 6 },
+                { text: '摺疊扇', color: '#2563eb', weight: 9 },
+                { text: '攜帶式酒精', color: '#3b82f6', weight: 13 },
+                { text: '潛水艇收納盒', color: '#60a5fa', weight: 18 },
+                { text: 'AI帆布袋', color: '#93c5fd', weight: 23 },
+                { text: '電容式觸控筆', color: '#bfdbfe', weight: 27 },
+            ]
+        };
+
 
         // --- 1. DOM 元素 & 全域變數 ---
         const mainContainer = document.getElementById('mainContainer');
@@ -304,7 +355,7 @@
 
             const winnerIndex = getWinnerByWeight();
             if (winnerIndex === -1) {
-                alert("獎項設定錯誤，無法抽獎");
+                showResult({ text: "獎項設定錯誤，無法抽獎" }, false);
                 isSpinning = false;
                 spinButton.disabled = false;
                 return;
@@ -348,7 +399,7 @@
 
         // --- 4. 結果顯示 & 特效 ---
         function showResult(prize, isOfficial) {
-            resultTitle.textContent = isOfficial ? '恭喜您抽中！' : '哇！差點就中獎了！';
+            resultTitle.textContent = isOfficial ? '恭喜您抽中！' : '恭喜完成模擬抽獎';
             resultText.textContent = prize.text;
 
             gtag('event', 'show_result', {
@@ -396,7 +447,7 @@
             if (isOfficialMode) {
                 exitOfficialMode();
             } else {
-                spinButton.disabled = false;
+                spinButton.disabled = prizes.length < 2;
             }
         }
 
@@ -501,7 +552,12 @@
             tempSettings.prizes = tempSettings.prizes.filter(p => p.text && p.text.trim() !== '');
 
             if (tempSettings.prizes.length < 2) {
-                alert('請至少設定兩個獎項！');
+                saveSettingsButton.textContent = '請至少設定兩個獎項！';
+                saveSettingsButton.classList.add('bg-red-500');
+                setTimeout(() => {
+                    saveSettingsButton.textContent = '儲存設定並更新轉盤';
+                    saveSettingsButton.classList.remove('bg-red-500');
+                }, 2000);
                 return;
             }
             prizes = JSON.parse(JSON.stringify(tempSettings.prizes));
@@ -513,37 +569,26 @@
             settingsPanel.classList.remove('open');
         });
 
-        // --- 7. 本地儲存邏輯 ---
+        // --- 7. 本地儲存邏輯 (for Official Mode) ---
         function saveSettingsToStorage(settings) {
-            localStorage.setItem('luckyWheelSettings', JSON.stringify(settings));
+            localStorage.setItem('officialLuckyWheelSettings', JSON.stringify(settings));
         }
 
-        function loadSettingsFromStorage() {
-            const storedSettings = localStorage.getItem('luckyWheelSettings');
-            if (storedSettings) {
-                const settings = JSON.parse(storedSettings);
-                prizes = settings.prizes;
-                mainTitle.textContent = settings.title;
-                return settings;
-            } else {
-                const defaultSettings = {
-                    title: '轉動你的三星幸運輪盤',
-                    prizes: [
-                        { text: '行動電源', color: '#1e3a8a', weight: 1 },
-                        { text: '摺疊餐具組', color: '#1e40af', weight: 5 },
-                        { text: '現翠茶', color: '#1d4ed8', weight: 5 },
-                        { text: '筆記本', color: '#2563eb', weight: 15 },
-                        { text: '原子筆', color: '#3b82f6', weight: 15 },
-                        { text: '扇子', color: '#60a5fa', weight: 15 },
-                        { text: 'AI貼紙', color: '#93c5fd', weight: 15 },
-                        { text: 'AI 帆布袋', color: '#bfdbfe', weight: 15 },
-                        { text: '銘謝惠顧', color: '#64748b', weight: 14 }
-                    ]
-                };
-                prizes = defaultSettings.prizes;
-                mainTitle.textContent = defaultSettings.title;
-                return defaultSettings;
-            }
+        function loadOfficialPrizes() {
+            const storedSettings = localStorage.getItem('officialLuckyWheelSettings');
+            const settings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_OFFICIAL_PRIZES;
+            prizes = settings.prizes;
+            mainTitle.textContent = settings.title;
+            createWheel();
+            updateGrandPrizeDisplay();
+        }
+
+        function loadSimulationPrizes() {
+            const settings = SIMULATION_PRIZES;
+            prizes = settings.prizes;
+            mainTitle.textContent = settings.title;
+            createWheel();
+            updateGrandPrizeDisplay();
         }
 
         // --- 8. 官方模式與後端紀錄 ---
@@ -555,6 +600,7 @@
             spinButton.disabled = false;
             authModal.classList.add('opacity-0', 'pointer-events-none');
             settingsToggle.style.display = 'flex';
+            loadOfficialPrizes(); // 載入官方獎項
             gtag('event', 'enter_official_mode', { 'event_category': 'staff_action' });
         }
 
@@ -563,23 +609,16 @@
             mainContainer.classList.remove('official-mode');
             officialModeBanner.classList.add('opacity-0');
             spinButton.textContent = '開始抽獎';
-            spinButton.disabled = prizes.length < 2;
             settingsToggle.style.display = 'none';
             settingsPanel.classList.remove('open');
+            loadSimulationPrizes(); // 載入模擬獎項
         }
 
         function logResultToSheet(prize, isOfficial) {
             if (!GOOGLE_SCRIPT_URL) return;
-
-            const data = {
-                prize: prize.text,
-                mode: isOfficial ? '官方' : '試玩'
-            };
-
+            const data = { prize: prize.text, mode: isOfficial ? '官方' : '試玩' };
             fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
+                method: 'POST', mode: 'no-cors', cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             }).catch(err => console.error('Error logging to sheet:', err));
@@ -609,18 +648,14 @@
         }
 
         unlockButton.addEventListener('click', handleUnlockAttempt);
-        passwordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleUnlockAttempt();
-        });
-        cancelUnlockButton.addEventListener('click', () => {
-            authModal.classList.add('opacity-0', 'pointer-events-none');
-        });
+        passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUnlockAttempt(); });
+        cancelUnlockButton.addEventListener('click', () => { authModal.classList.add('opacity-0', 'pointer-events-none'); });
 
         // --- 9. 新功能：大獎與得獎榜 ---
         function updateGrandPrizeDisplay() {
             if (prizes.length > 0) {
                 const grandPrize = [...prizes]
-                    .filter(p => p.text !== '銘謝惠顧')
+                    .filter(p => p.text !== '銘謝惠顧' && p.text.toLowerCase().indexOf('thank') === -1) // 更多元的感謝詞過濾
                     .sort((a, b) => a.weight - b.weight)[0];
                 
                 if (grandPrize) {
@@ -633,9 +668,7 @@
             if (!GOOGLE_SCRIPT_URL) return;
             try {
                 const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getWinners`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 updateWinnerBoard(data.winners);
             } catch (error) {
@@ -649,7 +682,6 @@
                 winnerList.innerHTML = `<p class="text-slate-400 text-center py-4">目前尚無得獎紀錄，快來挑戰！</p>`;
                 return;
             }
-            
             winnerList.innerHTML = winners.map(winner => 
                 `<p class="text-center py-2 text-slate-300">🎉 恭喜一位幸運顧客抽中 <span class="font-bold text-cyan-400">${winner.prize}</span>！</p>`
             ).join('');
@@ -657,10 +689,7 @@
 
         // --- 10. 初始化 ---
         window.onload = () => {
-            const settings = loadSettingsFromStorage();
-            createWheel();
-            exitOfficialMode();
-            updateGrandPrizeDisplay();
+            exitOfficialMode(); // 預設以模擬模式啟動
             fetchLatestWinners();
             setInterval(fetchLatestWinners, 30000);
         };
