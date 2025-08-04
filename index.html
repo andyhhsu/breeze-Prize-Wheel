@@ -137,35 +137,35 @@
     </style>
 </head>
 <body>
-    <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
         <div id="mainContainer" class="main-container p-4 sm:p-8 rounded-3xl text-center max-w-2xl w-full relative">
             <div id="officialModeBanner" class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white font-bold px-4 py-1 rounded-full text-sm shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">
                 官方抽獎模式
             </div>
-            <h1 id="mainTitle" class="text-3xl sm:text-4xl font-bold text-white mb-2" style="text-shadow: 0 0 10px rgba(96, 165, 250, 0.7);">LUCKY WHEEL</h1>
-            <p class="text-slate-300 mb-4">點擊下方按鈕，抽出你的專屬幸運！</p>
+            <h1 id="mainTitle" class="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2" style="text-shadow: 0 0 10px rgba(96, 165, 250, 0.7);">LUCKY WHEEL</h1>
+            <p class="text-slate-300 mb-2 sm:mb-4">點擊下方按鈕，抽出你的專屬幸運！</p>
             
             <!-- 大獎預告 -->
-            <div id="grand-prize-container" class="my-6 p-4 bg-slate-900/50 rounded-lg flex items-center justify-center gap-6 border border-blue-500/30">
-                <div class="w-28 h-28 bg-white/10 rounded-full p-2 flex items-center justify-center">
+            <div id="grand-prize-container" class="my-2 sm:my-6 p-3 sm:p-4 bg-slate-900/50 rounded-lg flex items-center justify-center gap-4 sm:gap-6 border border-blue-500/30">
+                <div class="w-20 h-20 sm:w-28 sm:h-28 bg-white/10 rounded-full p-2 flex items-center justify-center">
                     <img id="grand-prize-image" src="https://raw.githubusercontent.com/andyhhsu/breeze-Prize-Wheel/main/175000-removebg-preview.png" alt="Grand Prize" class="w-full h-full object-contain" style="animation: prize-glow 3s infinite;">
                 </div>
                 <div>
-                    <h3 class="text-4xl font-bold text-cyan-400">今日限定大獎</h3>
-                    <p id="grand-prize-name" class="text-2xl font-bold text-white">行動電源</p>
+                    <h3 class="text-xl sm:text-2xl font-bold text-cyan-400">今日限定大獎</h3>
+                    <p id="grand-prize-name" class="text-2xl sm:text-3xl font-bold text-white">行動電源</p>
                 </div>
             </div>
 
-            <div class="wheel-container">
+            <div class="wheel-container my-2 sm:my-4">
                 <div class="wheel" id="wheel"></div>
                 <div class="pointer"></div>
             </div>
-            <div class="mt-6">
+            <div class="mt-2 sm:mt-6">
                 <button id="spinButton" class="spin-button">開始抽獎</button>
             </div>
 
             <!-- 即時得獎榜 -->
-            <div id="winner-board-container" class="mt-6 h-16 overflow-hidden relative">
+            <div id="winner-board-container" class="mt-2 sm:mt-6 h-16 overflow-hidden relative">
                 <div id="winner-list" class="absolute top-0 left-0 w-full">
                     <!-- 得獎名單將由JS動態生成 -->
                 </div>
@@ -245,7 +245,7 @@
 
         // 官方抽獎預設獎項設定
         const DEFAULT_OFFICIAL_PRIZES = {
-            title: '幸運輪盤 - 官方抽獎',
+            title: '三星幸運轉盤-官方抽獎',
             prizes: [
                 { text: '10,000mAh行動電源', color: '#1e3a8a', weight: 1 },
                 { text: '環保餐具組', color: '#1e40af', weight: 3 },
