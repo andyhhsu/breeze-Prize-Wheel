@@ -320,6 +320,7 @@
         let currentRotation = 0;
         let isOfficialMode = false;
         let tempSettings = {};
+        let autoCloseTimer = null; // 新增：自動關閉計時器變數
 
         // --- 2. 音效設定 ---
         let audioInitialized = false;
@@ -466,12 +467,19 @@
                     </div>
                 `;
                 closeModalButton.textContent = '了解！';
+                // 新增：啟動自動關閉計時器
+                autoCloseTimer = setTimeout(hideResult, 15000);
             }
             
             resultModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
         }
         
         function hideResult() {
+            // 新增：清除計時器，避免重複觸發
+            if (autoCloseTimer) {
+                clearTimeout(autoCloseTimer);
+                autoCloseTimer = null;
+            }
             resultModal.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
             stopConfetti();
             if (isOfficialMode) {
@@ -744,4 +752,3 @@
     </script>
 </body>
 </html>
-
