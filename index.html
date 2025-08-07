@@ -467,15 +467,16 @@
                     </div>
                 `;
                 closeModalButton.textContent = '了解！';
-                // 新增：啟動自動關閉計時器
-                autoCloseTimer = setTimeout(hideResult, 15000);
             }
+            
+            // 啟動自動關閉計時器 (對兩種模式都生效)
+            autoCloseTimer = setTimeout(hideResult, 30000);
             
             resultModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
         }
         
         function hideResult() {
-            // 新增：清除計時器，避免重複觸發
+            // 清除計時器，避免重複觸發
             if (autoCloseTimer) {
                 clearTimeout(autoCloseTimer);
                 autoCloseTimer = null;
