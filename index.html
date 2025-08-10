@@ -281,7 +281,7 @@
                 { text: '造型貼紙', color: '#3b82f6', weight: 40 },
                 { text: '潛水艇收納盒', color: '#60a5fa', weight: 5 },
                 { text: 'AI帆布袋', color: '#93c5fd', weight: 13 },
-                { text: '質感原子筆', color: '#bfdbfe', weight: 35 },
+                { text: '質感原子筆', color: '#bfdbfe', weight: 35 }
             ]
         };
 
@@ -572,7 +572,7 @@
             } else if (e.target.classList.contains('prize-input')) {
                  const index = parseInt(e.target.dataset.index);
                 const key = e.target.dataset.key;
-                const value = e.target.type === 'number' ? parseInt(e.target.value) || 1 : e.target.value;
+                const value = e.target.type === 'number' ? parseFloat(e.target.value) || 1 : e.target.value;
                 tempSettings.prizes[index][key] = value;
             }
         });
@@ -753,4 +753,3 @@
     </script>
 </body>
 </html>
-
