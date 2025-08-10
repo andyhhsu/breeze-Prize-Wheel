@@ -232,6 +232,7 @@
         <div id="prize-list" class="space-y-4"></div>
         <button id="add-prize" class="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">新增獎項</button>
         <button id="save-settings" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded">儲存設定並更新轉盤</button>
+        <button id="reset-settings" class="mt-2 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors">恢復原廠設定</button>
         <p class="text-xs text-gray-400 mt-4">官方模式的設定將會自動儲存在您的瀏覽器中。</p>
     </div>
 
@@ -252,7 +253,7 @@
 
     <script>
         // --- 0. 活動設定 ---
-        const STAFF_PASSWORD = 'samsung888';
+        const STAFF_PASSWORD = '6699';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzoKarPMeTMXOxUciPWQisJRThU1Pq5VKvTVn4mQySw0GKAFyHxbSX-gcAu0WKSqNg/exec'; 
         
         // 模擬抽獎獎項設定
@@ -303,6 +304,7 @@
         const prizeListContainer = document.getElementById('prize-list');
         const addPrizeButton = document.getElementById('add-prize');
         const saveSettingsButton = document.getElementById('save-settings');
+        const resetSettingsButton = document.getElementById('reset-settings'); // 新增
         const staffLoginButton = document.getElementById('staff-login');
         const authModal = document.getElementById('authModal');
         const passwordInput = document.getElementById('passwordInput');
@@ -320,7 +322,7 @@
         let currentRotation = 0;
         let isOfficialMode = false;
         let tempSettings = {};
-        let autoCloseTimer = null; // 新增：自動關閉計時器變數
+        let autoCloseTimer = null;
 
         // --- 2. 音效設定 ---
         let audioInitialized = false;
@@ -418,12 +420,12 @@
         });
 
         function getWinnerByWeight() {
-            const totalWeight = prizes.reduce((sum, prize) => sum + prize.weight, 0);
+            const totalWeight = prizes.reduce((sum, prize) => sum + parseFloat(prize.weight), 0);
             if (totalWeight <= 0) return -1;
             let randomNum = Math.random() * totalWeight;
             for (let i = 0; i < prizes.length; i++) {
-                if (randomNum < prizes[i].weight) return i;
-                randomNum -= prizes[i].weight;
+                if (randomNum < parseFloat(prizes[i].weight)) return i;
+                randomNum -= parseFloat(prizes[i].weight);
             }
             return prizes.length - 1;
         }
@@ -469,14 +471,12 @@
                 closeModalButton.textContent = '了解！';
             }
             
-            // 啟動自動關閉計時器 (對兩種模式都生效)
             autoCloseTimer = setTimeout(hideResult, 30000);
             
             resultModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
         }
         
         function hideResult() {
-            // 清除計時器，避免重複觸發
             if (autoCloseTimer) {
                 clearTimeout(autoCloseTimer);
                 autoCloseTimer = null;
@@ -558,7 +558,7 @@
                         <label class="text-sm">顏色:</label>
                         <input type="color" value="${prize.color}" data-index="${index}" data-key="color" class="prize-input h-8 w-12 p-1 bg-slate-800 border border-slate-600 rounded cursor-pointer">
                         <label class="text-sm ml-auto">權重:</label>
-                        <input type="number" value="${prize.weight}" data-index="${index}" data-key="weight" class="prize-input w-20 p-2 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" placeholder="權重">
+                        <input type="number" step="0.01" value="${prize.weight}" data-index="${index}" data-key="weight" class="prize-input w-20 p-2 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500" min="0.01" placeholder="權重">
                     </div>
                 `;
                 prizeListContainer.appendChild(prizeItem);
@@ -610,6 +610,19 @@
             createWheel();
             updateGrandPrizeDisplay();
             settingsPanel.classList.remove('open');
+        });
+        
+        resetSettingsButton.addEventListener('click', () => {
+            localStorage.removeItem('officialLuckyWheelSettings');
+            loadOfficialPrizes();
+            renderPrizeSettings(DEFAULT_OFFICIAL_PRIZES);
+
+            resetSettingsButton.textContent = '已重設！';
+            resetSettingsButton.disabled = true;
+            setTimeout(() => {
+                resetSettingsButton.textContent = '恢復原廠設定';
+                resetSettingsButton.disabled = false;
+            }, 2000);
         });
 
         // --- 7. 本地儲存邏輯 (for Official Mode) ---
